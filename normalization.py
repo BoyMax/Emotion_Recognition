@@ -63,7 +63,7 @@ def face_landmarks(predictor, saveImageName, img, dets, detector):
 
 #第5步：整理训练数据集（标签）
 
-#第6步：训练整体识别模型
+#第6步：训练整体识别模型(对比实验)
 
 #第7步：训练单一识别模型
 

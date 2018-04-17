@@ -63,6 +63,30 @@ def transformLevel(dataset, column):
             row[column] = 0
         '''
 
+#featureColumn 表示标签在数据的倒数第featureColumn行 featureColumn=-8
+#targetColumn表示标签在数据行的倒数第targetColumn列 targetColumn= -2
+def clear_data(dataset,featureColumn,targetColumn):
+    # 转换feature 8表示最后8列不属于特征
+    for row in dataset:
+        for column in range(0, len(row) + featureColumn):
+            if isinstance(type(row[column]),str):
+                row[column] = float(row[column].strip())
+    # 离散类型转换tag
+    column = len(dataset[0]) + targetColumn
+    class_values = [row[column] for row in dataset]
+    unique = set(class_values)
+    lookup = dict()
+    for i, value in enumerate(unique):
+        lookup[value] = i
+    for row in dataset:
+        row[column] = lookup[row[column]]
+    return lookup,dataset
+
+def clear_test_data(dataset,featureColumn):
+    for row in dataset:
+        for column in range(0, len(row) + featureColumn):
+            if isinstance(type(row[column]),str):
+                row[column] = float(row[column].strip())
 
 def combine_all_feature(entropy_file, landmark_file, degree_file, all_feature_file):
     landmark_data = load_csv(landmark_file)
