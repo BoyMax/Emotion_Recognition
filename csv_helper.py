@@ -180,7 +180,7 @@ if __name__ == "__main__":
     landmark_file = os.getcwd() + '/data_set/landmark_feature.csv'
     degree_file = os.getcwd() + "/data_set/degree.csv"
     all_data_file = os.getcwd() + "/data_set/all_data.csv"
-    #combine_all_feature(entropy_file, landmark_file, degree_file, train_file)
+    combine_all_feature(entropy_file, landmark_file, degree_file, all_data_file)
 
     #按比例随机生成
     train_file = os.getcwd() + "/data_set/train.csv"
