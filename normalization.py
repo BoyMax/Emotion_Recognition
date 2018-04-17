@@ -78,27 +78,6 @@ def face_landmarks(predictor, saveImageName, img, detector):
         print(cv2.imwrite(os.getcwd() +"/preprocess/cropped/"+saveImageName, croped_img))
 
 
-#第3步：提取块特征（灰度值）
-
-
-#第4步：提取点特征
-
-
-#第5步：整理训练数据集（标签）
-
-#第6步：训练整体识别模型(对比实验)
-
-#第7步：训练单一识别模型
-
-#第8步：训练单一回归模型
-
-#第9步：判定分量差的阈值
-
-#第10步：输出结果
-
-
-
-
 def normalize(faces_folder_path,detector,predictor):
     files = glob.glob(os.path.join(faces_folder_path, "*.jpg"))
     for file in files:
