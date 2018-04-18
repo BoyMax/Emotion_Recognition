@@ -10,7 +10,7 @@ from sklearn.externals import joblib
 
 def get_test_set():
     testset = csv_helper.load_csv(os.getcwd() + '/data_set/test.csv')
-    csv_helper.clear_test_data(testset, -1)
+    csv_helper.clear_test_data(testset, -8)
     return testset
 
 
@@ -72,6 +72,7 @@ def judge(classifier_res, degree_res):
             class_value += class_res[pic_num]
             if class_res[pic_num] == 1:
                 class_item = tag
+        print('Pic Number {} has {} classes'.format(pic_num,class_value))
         if class_value == 1:
             print ('Pic Number {} is single emotion: {}'.format(pic_num,class_item))
             continue
@@ -94,7 +95,7 @@ def judge(classifier_res, degree_res):
         #--绝对值判定：
         if second > 4 :
             print ('Pic Number {} is complex emotion {} and {}, first:{}, second:{}'.format(pic_num,degree[first], degree[second], first, second))
-        elif first < 3.3:
+        elif first < 3.5:
             print('Pic Number {} is single emotion: NORMAL'.format(pic_num))
         #--相对值判定：
         elif first>3.5 and first - second <0.5:
@@ -102,16 +103,29 @@ def judge(classifier_res, degree_res):
         else:
             print('Pic Number {} is single emotion {}, first:{}'.format(pic_num, degree[first],first))
 
+def get_whole_classify(test_set):
+    rf= joblib.load(os.getcwd() + '/model/classify_model.m')
+    csv_helper.clear_data(test_set, -8, -2)
+    test_set = np.array(test_set)
+    test_data = test_set[:, 0:-8]
+    test_label = test_set[:, -2]
+    pre_rf = rf.predict(test_data)
+    print pre_rf
+    print(test_label)
+    acc = float((pre_rf == test_label).sum()) / len(test_data)
+    print u'准确率：%f' % (acc)
 
 if __name__ == "__main__":
     test_set = get_test_set()
-    classifier_models = get_classifier_model()
-    degree_models = get_degree_model()
-    classifier_res = get_multi_results(classifier_models, test_set)
-    degree_res = get_degree_result(degree_models, test_set)
-    judge(classifier_res, degree_res)
+    #classifier_models = get_classifier_model()
+    #degree_models = get_degree_model()
+    #classifier_res = get_multi_results(classifier_models, test_set)
+    #degree_res = get_degree_result(degree_models, test_set)
+    #judge(classifier_res, degree_res)
 
+    get_whole_classify(test_set)
     test_set = np.array(test_set)
     test_label = test_set[:, -1]
+
     print test_label
 

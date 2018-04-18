@@ -49,13 +49,13 @@ def cal_singular_entropy(matrix):
     singular_value_array = S  #奇异值'''
     entropy=-1  #计算奇异值的熵
     if(len(singular_value_array)>0):
-        result=0;
+        result=0
     for singular_value in singular_value_array:
         if singular_value ==0:
             break
         singular_value_rate = singular_value/sum(singular_value_array)
         entropy += -singular_value_rate * math.log(singular_value_rate,2)
-    return entropy;
+    return entropy
 
 
 '''主函数：通过图像子块的奇异熵表示图像特征(参数：文件夹路径，分块数)'''
@@ -100,6 +100,6 @@ if __name__ == "__main__" :
     @param: 提供的参数：1，图像的文件名位置，2，需要保留的文件位置，3，图像的格式列表
     '''
     ImageFilePath='/Users/Vivien/Documents/emotion_recognition/Emotion_Recognition/preprocess/cropped'
-    block=16
+    block=8
     train_feature_path='/Users/Vivien/Documents/emotion_recognition/Emotion_Recognition/data_set/gray_feature.csv'
     save_train_gray_feature(ImageFilePath,block,train_feature_path)

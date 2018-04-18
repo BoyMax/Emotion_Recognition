@@ -11,8 +11,8 @@ import face_detector
 def face_detection(detector,file):
     img = cv2.imread(file)
     dets = detector(img, 1)
-    print("Number of faces detected: {}".format(len(dets)))
-    print("Detected faces:",dets)
+    #print("Number of faces detected: {}".format(len(dets)))
+    #print("Detected faces:",dets)
     for k,d in enumerate(dets):
         #print("Detection {}: Left: {} Top: {} Right: {} Bottom: {}".format(k, d.left(), d.top(), d.right(), d.bottom()))
         leftTop = (int(d.left()), int(d.top()))

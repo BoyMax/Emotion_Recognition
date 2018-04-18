@@ -4,6 +4,9 @@ from sklearn.externals import joblib
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.ensemble import RandomForestRegressor
 
+import matplotlib.pyplot as plt
+import numpy as np
+
 import os
 import csv_helper
 
@@ -29,7 +32,7 @@ def make_classifier_model(dataset, tagNumber, tag, featureColumn, targetColumn):
             trainDataList.append(row[0:featureColumn])
             targetDataList.append(0)
     # 2. 进行训练，查看指标
-    rf = RandomForestClassifier(oob_score=True, random_state=10, n_estimators=30)
+    rf = RandomForestClassifier(oob_score=True, random_state=10, n_estimators=60)
     rf = rf.fit(trainDataList, targetDataList)
     print '----- The oob score is: {oob_score}'.format(oob_score=rf.oob_score_)
     return rf
@@ -58,7 +61,7 @@ def make_degree_model(dataset,tagNumber,tag,featureColumn,targetColumn,degreeCol
             trainDataList.append(row[0:featureColumn])
             targetDataList.append(row[len(dataset[0])+degreeColumn])
     # 2. 进行训练，查看指标
-    rf = RandomForestRegressor(oob_score=True, random_state=200, n_estimators=50)
+    rf = RandomForestRegressor(oob_score=True, random_state=200, n_estimators=100)
     rf = rf.fit(trainDataList, targetDataList)
     print '----- The oob score is: {oob_score}'.format(oob_score=rf.oob_score_)
     return rf
@@ -67,7 +70,7 @@ def generate_single_classify_model(classifyTag, dataset):
     try:
         os.chdir(os.getcwd() + '/model')
         for (tag, tagNumber) in classifyTag.items():
-            rf = make_classifier_model(dataset, tagNumber, tag,-8,-2)
+            rf = make_classifier_model(dataset, tagNumber, tag, -8, -2)
             model_name = tag+"_classify_model.m"
             joblib.dump(rf, model_name)
             #print rf.predict(testset)
@@ -75,6 +78,52 @@ def generate_single_classify_model(classifyTag, dataset):
         os.chdir(os.getcwd() + '/..')
     except Exception,err:
         print 'Error: ', err
+
+
+def generate_whole_classify_model(dataset):
+
+    data_set = np.array(dataset)
+
+    train_data = data_set[:, 0: -8]
+    train_label = data_set[:, -2]
+    rf = RandomForestClassifier(oob_score=True,n_estimators=100)
+    rf = rf.fit(train_data, train_label)
+    os.chdir(os.getcwd() + '/model')
+    model_name = "classify_model.m"
+    joblib.dump(rf, model_name)
+    os.chdir(os.getcwd() + '/..')
+'''
+    feature_importance = rf.feature_importances_
+    feature_importance = 100.0 * (feature_importance / feature_importance.max())
+    fi_threshold = 50
+    important_idx = np.where(feature_importance > fi_threshold)[0]
+    important_features = important_idx
+    print "\n", important_features.shape[0], "Important features(>", \
+         fi_threshold, "% of max importance)...\n"#, \
+         #important_features
+    sorted_idx = np.argsort(feature_importance[important_idx])[::-1]
+    #get the figure about important features
+    pos = np.arange(sorted_idx.shape[0]) + .5
+    plt.subplot(1, 2, 2)
+    plt.title('Feature Importance')
+    plt.barh(pos, feature_importance[important_idx][sorted_idx[::-1]], \
+         color='r',align='center')
+    plt.yticks(pos, important_features[sorted_idx[::-1]])
+    plt.xlabel('Relative Importance')
+    plt.draw()
+    plt.show()
+
+
+
+横向特征重要性的图
+    f, ax = plt.subplots(figsize=(8, 6))
+    ax.bar(range(len(rf.feature_importances_)),rf.feature_importances_)
+    ax.set_title("Feature Importances")
+    f.show()
+    plt.show()
+'''
+
+
 
 
 def generate_single_degree_model(classifyTag, dataset):
@@ -109,9 +158,9 @@ def generate_single_degree_model(classifyTag, dataset):
 if __name__ == "__main__":
     dataset = csv_helper.load_csv(os.getcwd() + '/data_set/train.csv')
     classifyTag, dataset = csv_helper.clear_data(dataset, -8, -2)
-    generate_single_classify_model(classifyTag, dataset)
-    generate_single_degree_model(classifyTag, dataset)
-
+    #generate_single_classify_model(classifyTag, dataset)
+    #generate_single_degree_model(classifyTag, dataset)
+    generate_whole_classify_model(dataset)
 
 
     #整体随机森林

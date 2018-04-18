@@ -74,10 +74,17 @@ def clear_data(dataset,featureColumn,targetColumn):
     # 离散类型转换tag
     column = len(dataset[0]) + targetColumn
     class_values = [row[column] for row in dataset]
-    unique = set(class_values)
+    #unique = set(class_values)
     lookup = dict()
-    for i, value in enumerate(unique):
-        lookup[value] = i
+    #for i, value in enumerate(unique):
+    #    lookup[value] = i
+    lookup["HA"] = 0
+    lookup["SA"] = 1
+    lookup["SU"] = 2
+    lookup["AN"] = 3
+    lookup["DI"] = 4
+    lookup["FE"] = 5
+    lookup["NE"] = 6
     for row in dataset:
         row[column] = lookup[row[column]]
     return lookup,dataset
@@ -112,6 +119,26 @@ def combine_all_feature(entropy_file, landmark_file, degree_file, all_feature_fi
                         insertLineIntoFile(all_feature_file, i, all_feature_row)
                         i += 1
                         break
+
+def combine_landmark_feature(landmark_file, degree_file, all_feature_file):
+    landmark_data = load_csv(landmark_file)
+    degree_data = load_csv(degree_file)
+    file_clear(all_feature_file)
+    i = 1
+    for landmark_row in landmark_data:
+        picName = landmark_row[len(landmark_row) - 1]
+        all_feature_row = ''
+        for n in range(0, len(landmark_row) - 1):
+            all_feature_row += landmark_row[n] + ','
+        emotion_label = picName.split('-')[1][0:2]
+        for degree_row in degree_data:
+            if picName == degree_row[len(degree_row) - 1]:
+                for k in range(0, len(degree_row) - 1):
+                    all_feature_row += degree_row[k] + ','
+                all_feature_row = all_feature_row + emotion_label + "," + picName
+                insertLineIntoFile(all_feature_file, i, all_feature_row)
+                i += 1
+                break
 
 
 def spilt_test_data(all_feature_file, train_file, test_file,rate):
