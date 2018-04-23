@@ -65,7 +65,7 @@ def feature_extraction(ImagePath,block):
     imageIndex = 0
     features = np.zeros((len(imageFiles),(block+1)*(block+1)))
     for image in imageFiles:
-        rois = ROI_block(image,block)
+        rois = ROI_block(image, block)
         imagePath.append(image)
         image_entropys = np.zeros((block+1)*(block+1))
         roiIndex = 0

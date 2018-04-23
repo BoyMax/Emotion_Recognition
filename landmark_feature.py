@@ -9,6 +9,7 @@ import face_detector
 import numpy as np
 import math
 
+from lbp import LocalBinaryPatterns
 #第4步：提取点特征
 
 def get_landmark_feature(images_path,train_feature_path):
@@ -26,11 +27,21 @@ def get_landmark_feature(images_path,train_feature_path):
             shape = predictor(img, d)
             feature_str =''
             for i in range(68-1):
-                if shape.part(i).x - shape.part(i+1).x == 0:
-                    gradient = 0
-                else:
-                    gradient = float((shape.part(i).y - shape.part(i+1).y))/float((shape.part(i).x - shape.part(i+1).x))
-                feature_str = feature_str + "%.2f" % gradient+","
+                #按特征点切分区域：
+                point_x= shape.part(i).x
+                point_y= shape.part(i).y
+
+                point_region = img[point_x-5:point_x+5, point_y-5,point_y+5]
+                desc = LocalBinaryPatterns(8, 1)
+                gray = cv2.cvtColor(point_region, cv2.COLOR_BGR2GRAY)
+                hist = desc.describe(gray)
+
+
+                #if shape.part(i).x - shape.part(i+1).x == 0:
+                #    gradient = 0
+                #else:
+                #    gradient = float((shape.part(i).y - shape.part(i+1).y))/float((shape.part(i).x - shape.part(i+1).x))
+                #feature_str = feature_str + "%.2f" % gradient+","
                 #feature_str = feature_str + "%d" % shape.part(i).x +","+"%d" % shape.part(i).y +","
             str = f.split('.jpg')[0].rsplit('/')
             picName = str[len(str)-1][0:6].replace(".", "-")

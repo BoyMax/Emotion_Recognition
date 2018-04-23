@@ -92,7 +92,7 @@ def clear_data(dataset,featureColumn,targetColumn):
 def clear_test_data(dataset,featureColumn):
     for row in dataset:
         for column in range(0, len(row) + featureColumn):
-            if isinstance(type(row[column]),str):
+            if isinstance(type(row[column]), str):
                 row[column] = float(row[column].strip())
 
 def combine_all_feature(entropy_file, landmark_file, degree_file, all_feature_file):
