@@ -5,7 +5,7 @@ import numpy as np
 import face_detector
 import os
 
-from datetime import datetime,timedelta
+from datetime import datetime, timedelta
 from sklearn.externals import joblib
 
 
@@ -22,8 +22,7 @@ def distance(t1,t2):
 
 
 
-def get_feature(img):
-    detector, predictor = face_detector.get_face_detector()
+def get_feature(img,detector, predictor):
     faces = detector(img)
     shapes = []
     if len(faces) != 0:
@@ -123,22 +122,22 @@ def capture():
     # 第三个参数则是镜头快慢的，10为正常，小于10为慢镜头
     #out = cv2.VideoWriter('/opt/code/video/output2.avi', fourcc,10,(640,480))
 
-    start = datetime.now()
+    frames = 0
     timestamps = []
-    timestamps.append(start)
     emotion_values = []
     while True:
         ret, frame = cap.read()
         if ret == True:
-            frame = cv2.flip(frame, 1)
+            #frame = cv2.flip(frame, 1)
             #a = out.write(frame)
             #gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
-            if cv2.waitKey(1) & 0xFF ==ord('q'):
+            if cv2.waitKey(1) & 0xFF == 27:
                 break
             else:
+                frames += 1
                 try:
-                    feature = get_feature(frame)
+                    feature = get_feature(frame, detector, predictor)
                     if not feature is None:
                         feature = feature.reshape(-1,53)
                     emotion_value = rf.predict(feature)[0]
@@ -157,22 +156,19 @@ def capture():
                     elif emotion_value == '6':
                         cv2.putText(frame, 'normal',(300,60),cv2.FONT_HERSHEY_SIMPLEX,2,(0,255,0))
                     cv2.imshow("frame", frame)
-                    #判断时间，记录
-                    end = datetime.now()
-                    if (end-start > timedelta(seconds=10)):
-                        start = end
-                        timestamps.append(start)
+                    if (frames > 30):
+                        frames = 0
+                        timestamps.append(datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
                         emotion_values.append(emotion_value)
 
                 except Exception,err:
                     cv2.putText(frame, 'No face detected',(270,60),cv2.FONT_HERSHEY_SIMPLEX,1,(0,255,0))
                     cv2.imshow("frame", frame)
 
-                    end = datetime.now()
-                    if (end-start > timedelta(seconds=10)):
-                        start = end
-                        timestamps.append(start)
-                        emotion_values.append('null')
+                    if (frames > 30):
+                        frames = 0
+                        timestamps.append(datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+                        emotion_values.append("null")
                     print 'Error: ', err
         else:
             break
@@ -185,3 +181,5 @@ def capture():
 
 if __name__ =="__main__":
     timestamps, emotion_values = capture()
+    print(timestamps)
+    print(emotion_values)
