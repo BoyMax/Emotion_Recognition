@@ -4,8 +4,8 @@ import cv2
 import numpy as np
 import face_detector
 import os
-
-from datetime import datetime, timedelta
+import report
+from datetime import datetime
 from sklearn.externals import joblib
 
 
@@ -167,7 +167,8 @@ def capture():
 
                     if (frames > 30):
                         frames = 0
-                        timestamps.append(datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+                        #timestamps.append(datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+                        timestamps.append(datetime.now().time().strftime('%H:%M:%S'))
                         emotion_values.append("null")
                     print 'Error: ', err
         else:
@@ -181,5 +182,4 @@ def capture():
 
 if __name__ =="__main__":
     timestamps, emotion_values = capture()
-    print(timestamps)
-    print(emotion_values)
+    report.generate_report(timestamps, emotion_values)
