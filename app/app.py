@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 
+import report
 import cv2
 import numpy as np
 import face_detector
 import os
-import report
 from datetime import datetime
 from sklearn.externals import joblib
+import dlib
 
 
 #t1,t2 元组表示坐标点
@@ -33,9 +34,14 @@ def get_feature(img,detector, predictor):
         face = faces[0]
         leftTop = (int(face.left()), int(face.top()))
         rightBottom = (int(face.right()), int(face.bottom()))
-        cv2.rectangle(img, leftTop, rightBottom, (0, 0, 255), 1, 4, 0)
+        cv2.rectangle(img, leftTop, rightBottom, (0, 0, 255), 4, 4, 0)
 
         shape = shapes[0]
+        #归一化
+        image = dlib.get_face_chip(img, shape)
+
+        #取灰度值特征
+        #gray_feature = data_collect.feature_extraction(image, 4)
 
         #采用脸部宽度做归一化衡量标准
         factor = distance(shape.part(0), shape.part(16))
@@ -93,8 +99,11 @@ def get_feature(img,detector, predictor):
                 gradient = float((shape.part(i).y - shape.part(i+1).y))/float((shape.part(i).x - shape.part(i+1).x))
             angle.append(gradient)
 
-        feature = np.zeros(53)
+        feature = np.zeros(53)#69
         i = 0
+        #for entropy in gray_feature:
+         #   feature[i] = entropy
+         #   i += 1
         for d in dist:
             feature[i] = d
             i += 1
@@ -123,8 +132,8 @@ def capture():
     #out = cv2.VideoWriter('/opt/code/video/output2.avi', fourcc,10,(640,480))
 
     frames = 0
-    timestamps = []
-    emotion_values = []
+    timestamps = list()
+    emotion_values = list()
     while True:
         ret, frame = cap.read()
         if ret == True:
@@ -139,33 +148,33 @@ def capture():
                 try:
                     feature = get_feature(frame, detector, predictor)
                     if not feature is None:
-                        feature = feature.reshape(-1,53)
+                        feature = feature.reshape(-1,53)#69
                     emotion_value = rf.predict(feature)[0]
                     if emotion_value == '0':
-                        cv2.putText(frame, 'happy', (300,60),cv2.FONT_HERSHEY_SIMPLEX,2,(0,255,0))
+                        cv2.putText(frame, 'happy', (600,60),cv2.FONT_HERSHEY_SIMPLEX,2,(0,255,255),8)
                     elif emotion_value == '1':
-                        cv2.putText(frame, 'sad', (300,60),cv2.FONT_HERSHEY_SIMPLEX,2,(0,255,0))
+                        cv2.putText(frame, 'sad', (600,60),cv2.FONT_HERSHEY_SIMPLEX,2,(0,255,255),8)
                     elif emotion_value == '2':
-                        cv2.putText(frame, 'surprise', (300,60),cv2.FONT_HERSHEY_SIMPLEX,2,(0,255,0))
+                        cv2.putText(frame, 'surprise', (600,60),cv2.FONT_HERSHEY_SIMPLEX,2,(0,255,255),8)
                     elif emotion_value == '3':
-                        cv2.putText(frame, 'angry', (300,60),cv2.FONT_HERSHEY_SIMPLEX,2,(0,255,0))
+                        cv2.putText(frame, 'angry', (600,60),cv2.FONT_HERSHEY_SIMPLEX,2,(0,255,255),8)
                     elif emotion_value == '4':
-                        cv2.putText(frame, 'disgust', (300,60),cv2.FONT_HERSHEY_SIMPLEX,2,(0,255,0))
+                        cv2.putText(frame, 'disgust', (600,60),cv2.FONT_HERSHEY_SIMPLEX,2,(0,255,255),8)
                     elif emotion_value == '5':
-                        cv2.putText(frame, 'fear', (300,60),cv2.FONT_HERSHEY_SIMPLEX,2,(0,255,0))
+                        cv2.putText(frame, 'fear', (600,60),cv2.FONT_HERSHEY_SIMPLEX,2,(0,255,255),8)
                     elif emotion_value == '6':
-                        cv2.putText(frame, 'normal',(300,60),cv2.FONT_HERSHEY_SIMPLEX,2,(0,255,0))
+                        cv2.putText(frame, 'normal',(600,60),cv2.FONT_HERSHEY_SIMPLEX,2,(0,255,255),8)
                     cv2.imshow("frame", frame)
-                    if (frames > 30):
+                    if (frames > 10):
                         frames = 0
-                        timestamps.append(datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+                        timestamps.append(datetime.now().time().strftime('%H:%M:%S'))
                         emotion_values.append(emotion_value)
 
                 except Exception,err:
-                    cv2.putText(frame, 'No face detected',(270,60),cv2.FONT_HERSHEY_SIMPLEX,1,(0,255,0))
+                    cv2.putText(frame, 'No face detected',(600,60),cv2.FONT_HERSHEY_SIMPLEX,2,(0,255,255),8)
                     cv2.imshow("frame", frame)
 
-                    if (frames > 30):
+                    if (frames > 10):
                         frames = 0
                         #timestamps.append(datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
                         timestamps.append(datetime.now().time().strftime('%H:%M:%S'))
@@ -181,5 +190,12 @@ def capture():
 
 
 if __name__ =="__main__":
-    timestamps, emotion_values = capture()
-    report.generate_report(timestamps, emotion_values)
+    try:
+        timestamps, emotion_values = capture()
+        print timestamps
+        print emotion_values
+        print type(timestamps[0])
+        print type(timestamps[0])
+        report.generate_report(timestamps, emotion_values)
+    except Exception,err:
+        print err
